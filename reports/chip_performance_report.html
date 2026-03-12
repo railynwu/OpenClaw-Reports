@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>假设验证报告 | 芯片性能</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+            background: radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        .header .subtitle { color: var(--text-secondary); font-size: 1.1rem; }
+        .header .timestamp { color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; }
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            text-align: center;
+            position: relative;
+        }
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
+        }
+        .score-display {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-primary) 0deg 198deg, rgba(255,255,255,0.1) 198deg 360deg);
+            margin: 30px 0;
+            position: relative;
+        }
+        .score-display::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: var(--bg-card);
+            border-radius: 50%;
+        }
+        .score-value {
+            position: relative;
+            z-index: 1;
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .score-label { font-size: 1.2rem; color: var(--text-secondary); margin-top: 8px; }
+        .verdict {
+            display: inline-block;
+            padding: 8px 24px;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--warning);
+            border-radius: 20px;
+            color: var(--warning);
+            font-weight: 600;
+            margin-top: 16px;
+        }
+        .dimensions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+        .dimension-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .dimension-name { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .dimension-score {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        .progress-fill { height: 100%; background: var(--accent-gradient); border-radius: 4px; }
+        .section { margin: 60px 0; }
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+        .barriers-list { display: grid; gap: 16px; }
+        .barrier-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .barrier-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(245, 158, 11, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .barrier-content h4 { font-size: 1rem; margin-bottom: 4px; }
+        .barrier-content p { font-size: 0.9rem; color: var(--text-secondary); }
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .signal-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .signal-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .signal-text { font-size: 0.9rem; color: var(--text-secondary); }
+        .comments-grid { display: grid; gap: 20px; }
+        .comment-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .comment-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .comment-platform {
+            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        .comment-sentiment {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .sentiment-positive { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .sentiment-neutral { background: rgba(148, 163, 184, 0.2); color: var(--text-secondary); }
+        .comment-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; font-style: italic; }
+        .footer {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .footer .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--accent-gradient);
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔍 假设验证报告</h1>
+            <p class="subtitle">创意人群关注芯片性能</p>
+            <p class="timestamp">近 90 天数据 | 生成时间：2026-03-12 15:44</p>
+        </header>
+        <div class="result-card">
+            <h2>验证结果</h2>
+            <div class="score-display">
+                <span class="score-value">55</span>
+            </div>
+            <p class="score-label">综合得分 / 100</p>
+            <div class="verdict">⚠️ 中等认可 (Medium)</div>
+            <p style="margin-top: 24px; color: var(--text-secondary); max-width: 600px; margin-left: auto; margin-right: auto;">
+                假设部分成立 — 创意人群对芯片性能有一定关注，但证据中创意人群特征不够鲜明
+            </p>
+        </div>
+        <div class="section">
+            <h3 class="section-title">📊 维度分析</h3>
+            <div class="dimensions">
+                <div class="dimension-card">
+                    <div class="dimension-name">情感共鸣</div>
+                    <div class="dimension-score">58</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 58%;"></div></div>
+                </div>
+                <div class="dimension-card">
+                    <div class="dimension-name">阶段相关性</div>
+                    <div class="dimension-score">60</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 60%;"></div></div>
+                </div>
+                <div class="dimension-card">
+                    <div class="dimension-name">风险敏感度</div>
+                    <div class="dimension-score">42</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 42%;"></div></div>
+                </div>
+                <div class="dimension-card">
+                    <div class="dimension-name">行为准备度</div>
+                    <div class="dimension-score">53</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 53%;"></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h3 class="section-title">🚧 关键障碍</h3>
+            <div class="barriers-list">
+                <div class="barrier-item">
+                    <div class="barrier-icon">📢</div>
+                    <div class="barrier-content">
+                        <h4>纯爆料内容过多</h4>
+                        <p>部分评论仅为产品爆料，缺乏性能细节讨论</p>
+                    </div>
+                </div>
+                <div class="barrier-item">
+                    <div class="barrier-icon">⚠️</div>
+                    <div class="barrier-content">
+                        <h4>风险讨论不足</h4>
+                        <p>多数内容未涉及性能风险/成本考量</p>
+                    </div>
+                </div>
+                <div class="barrier-item">
+                    <div class="barrier-icon">👥</div>
+                    <div class="barrier-content">
+                        <h4>创意人群特征不明显</h4>
+                        <p>部分评论来自普通消费者，非典型创意从业者</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h3 class="section-title">💡 改进方向</h3>
+            <div class="signals-grid">
+                <div class="signal-item">
+                    <div class="signal-icon">⬆️</div>
+                    <div class="signal-text">聚焦工作流相关性能讨论（渲染、剪辑、多任务）</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-icon">⬆️</div>
+                    <div class="signal-text">增加创意社区/专业论坛数据源</div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-icon">⬆️</div>
+                    <div class="signal-text">区分芯片爆料与性能实测内容</div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h3 class="section-title">📝 代表性评论</h3>
+            <div class="comments-grid">
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="comment-platform">Web</span>
+                        <span class="comment-sentiment sentiment-positive">正面</span>
+                    </div>
+                    <p class="comment-text">"A20 芯片采用...CPU 和 GPU 性能提升"</p>
+                </div>
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="comment-platform">BBS</span>
+                        <span class="comment-sentiment sentiment-neutral">中性</span>
+                    </div>
+                    <p class="comment-text">"iPad Air 11 英寸 M3 芯片...iPad Pro 11 英寸 M5 芯片"</p>
+                </div>
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="comment-platform">抖音</span>
+                        <span class="comment-sentiment sentiment-neutral">中性</span>
+                    </div>
+                    <p class="comment-text">"用速度装一台 iphone 十六...性能绝对够用"</p>
+                </div>
+            </div>
+        </div>
+        <footer class="footer">
+            <span class="badge">Multi-agent Framework</span>
+            <p>Retriever → Analyst → Reporter</p>
+            <p style="margin-top: 12px;">数据源：data/comments.csv | 证据数：9 条</p>
+        </footer>
+    </div>
+</body>
+</html>
