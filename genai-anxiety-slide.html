@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI Anxiety - PPT Slide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .slide {
+            width: 1280px;
+            height: 720px;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+            border-radius: 20px;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 10% 20%, rgba(239, 68, 68, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 90% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        .header {
+            margin-bottom: 40px;
+        }
+        .eyebrow {
+            font-size: 14px;
+            font-weight: 500;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        .anxiety-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .anxiety-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .anxiety-card.fear {
+            border-left: 4px solid #ef4444;
+        }
+        .anxiety-card.doubt {
+            border-left: 4px solid #f59e0b;
+        }
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .anxiety-card.fear .card-title {
+            color: #fca5a5;
+        }
+        .anxiety-card.doubt .card-title {
+            color: #fcd34d;
+        }
+        .card-text {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #94a3b8;
+        }
+        .card-text strong {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+        .vs-divider {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            z-index: 2;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+        }
+        .insight {
+            margin-top: 40px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(0, 212, 170, 0.05) 100%);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 16px;
+            padding: 28px 32px;
+            position: relative;
+            z-index: 1;
+        }
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .insight-icon {
+            font-size: 24px;
+        }
+        .insight-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #a78bfa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .insight-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #cbd5e1;
+        }
+        .insight-text strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #7c3aed 0%, #00d4aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        .source {
+            position: absolute;
+            bottom: 24px;
+            right: 40px;
+            font-size: 12px;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <div class="header">
+            <div class="eyebrow">GenAI Impact Example</div>
+            <h1>The AI Anxiety Paradox</h1>
+        </div>
+
+        <div class="content">
+            <div class="anxiety-card fear">
+                <div class="card-icon">😰</div>
+                <div class="card-title">Fear: AI is TOO Strong</div>
+                <div class="card-text">
+                    <strong>Traditional industries under threat</strong><br>
+                    Lawyers, financial analysts, insurance brokers, wealth managers, logistics—any role "touching AI" faces disruption.<br><br>
+                    <strong>Market reaction:</strong> Capital flees first. Related stocks get hammered.
+                </div>
+            </div>
+
+            <div class="vs-divider">VS</div>
+
+            <div class="anxiety-card doubt">
+                <div class="card-icon">🤔</div>
+                <div class="card-title">Doubt: AI is NOT Strong Enough</div>
+                <div class="card-text">
+                    <strong>Tech giants burning cash</strong><br>
+                    Amazon, Meta, Microsoft, Google: <strong>$600B+ capex</strong> expected in 2026.<br><br>
+                    <strong>The problem:</strong> Profits haven't exploded yet, but cash flow is being "devoured." Returns? Unclear.
+                </div>
+            </div>
+        </div>
+
+        <div class="insight">
+            <div class="insight-header">
+                <span class="insight-icon">💡</span>
+                <span class="insight-title">Key Insight</span>
+            </div>
+            <div class="insight-text">
+                This is a classic <strong>"expectation squeeze"</strong> phase. Every tech revolution goes through: 
+                <span class="highlight">Over-optimism → Bubble doubt → Emotional stampede → Back to fundamentals.</span><br><br>
+                The real question isn't "Will AI work?"—it's <strong>"Who survives to reap the rewards?"</strong> Short-term volatility will be intense. 
+                Long-term winners won't be the best storytellers, but those who <strong>turn AI into profits.</strong>
+            </div>
+        </div>
+
+        <div class="source">Source: Xiaohongshu / US Market Analysis 2026</div>
+    </div>
+</body>
+</html>
