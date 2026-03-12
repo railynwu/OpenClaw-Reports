@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>假设验证报告 | 屏幕显示效果</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+            background: radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        .header .subtitle { color: var(--text-secondary); font-size: 1.1rem; }
+        .header .timestamp { color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; }
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            text-align: center;
+            position: relative;
+        }
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--accent-gradient);
+        }
+        .score-display {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-primary) 0deg 297deg, rgba(255,255,255,0.1) 297deg 360deg);
+            margin: 30px 0;
+            position: relative;
+        }
+        .score-display::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: var(--bg-card);
+            border-radius: 50%;
+        }
+        .score-value {
+            position: relative;
+            z-index: 1;
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .score-label { font-size: 1.2rem; color: var(--text-secondary); margin-top: 8px; }
+        .verdict {
+            display: inline-block;
+            padding: 8px 24px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--success);
+            border-radius: 20px;
+            color: var(--success);
+            font-weight: 600;
+            margin-top: 16px;
+        }
+        .dimensions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+        .dimension-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .dimension-name { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .dimension-score {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        .progress-fill { height: 100%; background: var(--accent-gradient); border-radius: 4px; }
+        .section { margin: 60px 0; }
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+        .barriers-list { display: grid; gap: 16px; }
+        .barrier-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .barrier-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(245, 158, 11, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .barrier-content h4 { font-size: 1rem; margin-bottom: 4px; }
+        .barrier-content p { font-size: 0.9rem; color: var(--text-secondary); }
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .signal-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .signal-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .signal-text { font-size: 0.9rem; color: var(--text-secondary); }
+        .comments-grid { display: grid; gap: 20px; }
+        .comment-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .comment-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .comment-platform {
+            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        .comment-sentiment {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .sentiment-positive { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .sentiment-neutral { background: rgba(148, 163, 184, 0.2); color: var(--text-secondary); }
+        .comment-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; font-style: italic; }
+        .platform-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .platform-table th, .platform-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .platform-table th {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .footer {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .footer .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--accent-gradient);
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔍 假设验证报告 / Hypothesis Verification Report</h1>
+            <p class="subtitle">创意人群关注屏幕显示效果 / Creative Audiences Care About Screen Display Quality</p>
+            <p class="timestamp">近 90 天数据 | 生成时间：2026-03-12 17:08</p>
+        </header>
+        <div class="result-card">
+            <h2>验证结果 / Verification Result</h2>
+            <div class="score-display">
+                <span class="score-value">82.5</span>
+            </div>
+            <p class="score-label">综合得分 / Overall Score</p>
+            <div class="verdict">✅ 高度接受 / High Acceptance</div>
+            <p style="margin-top: 24px; color: var(--text-secondary); max-width: 600px; margin-left: auto; margin-right: auto;">
+                假设验证通过 — 创意人群确实高度关注屏幕显示效果，证据充分且跨平台一致
+            </p>
+            <p style="margin-top: 12px; color: var(--text-secondary); max-width: 600px; margin-left: auto; margin-right: auto;">
+                Hypothesis validated — Creative audiences do highly value screen display quality, with strong and cross-platform consistent evidence
+            </p>
+        </div>
+        <div class="section">
+            <h3 class="section-title">📊 维度分析 / Dimension Analysis</h3>
+            <div class="dimensions">
+                <div class="dimension-card">
+                    <div class="dimension-name">情感共鸣 / Emotional Resonance</div>
+                    <div class="dimension-score">85</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 85%;"></div></div>
+                </div>
+                <div class="dimension-card">
+                    <div class="dimension-name">阶段相关性 / Stage Relevance</div>
+                    <div class="dimension-score">90</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="dimension-card">
+                    <div class="dimension-name">风险敏感度 / Risk Sensitivity</div>
+                    <div class="dimension-score">75</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 75%;"></div></div>
+                </div>
+                <div class="dimension-card">
+                    <div class="dimension-name">行为准备度 / Behavioral Readiness</div>
+                    <div class="dimension-score">80</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 80%;"></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h3 class="section-title">📍 平台分布 / Platform Distribution</h3>
+            <table class="platform-table">
+                <thead>
+                    <tr>
+                        <th>平台 / Platform</th>
+                        <th>评论数 / Comments</th>
+                        <th>占比 / Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>抖音 / Douyin</td><td>60</td><td>53.1%</td></tr>
+                    <tr><td>网页 / Web</td><td>20</td><td>17.7%</td></tr>
+                    <tr><td>微信 / Weixin</td><td>15</td><td>13.3%</td></tr>
+                    <tr><td>微博 / Weibo</td><td>8</td><td>7.1%</td></tr>
+                    <tr><td>B 站 / Bilibili</td><td>5</td><td>4.4%</td></tr>
+                    <tr><td>小红书 / Xiaohongshu</td><td>3</td><td>2.7%</td></tr>
+                    <tr><td>论坛 / BBS</td><td>2</td><td>1.8%</td></tr>
+                </tbody>
+            </table>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                <strong>关键洞察 / Key Insight:</strong> 抖音是最主要的讨论平台，表明短视频创作者对屏幕效果高度关注。<br>
+                <em>Douyin is the primary discussion platform, indicating short-form video creators highly value screen quality.</em>
+            </p>
+        </div>
+        <div class="section">
+            <h3 class="section-title">🚧 障碍与限制 / Barriers & Limitations</h3>
+            <div class="barriers-list">
+                <div class="barrier-item">
+                    <div class="barrier-icon">🔄</div>
+                    <div class="barrier-content">
+                        <h4>跨平台数据整合 / Cross-Platform Data Integration</h4>
+                        <p>证据来自 7 个平台，需要统一分析框架</p>
+                        <p style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary);">Evidence from 7 platforms needs unified analysis framework</p>
+                    </div>
+                </div>
+                <div class="barrier-item">
+                    <div class="barrier-icon">👥</div>
+                    <div class="barrier-content">
+                        <h4>专业用途验证 / Professional Use Verification</h4>
+                        <p>部分评论未明确说明创意工作用途</p>
+                        <p style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary);">Some comments don't explicitly state creative work use</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h3 class="section-title">💡 改进方向 / Recommendations</h3>
+            <div class="signals-grid">
+                <div class="signal-item">
+                    <div class="signal-icon">📹</div>
+                    <div class="signal-text">增加专业创意软件提及（Final Cut Pro、Photoshop 等）<br><span style="font-size: 0.85rem; color: var(--text-secondary);">Add professional creative software mentions (Final Cut Pro, Photoshop, etc.)</span></div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-icon">📊</div>
+                    <div class="signal-text">量化屏幕规格偏好（分辨率、色域、刷新率）<br><span style="font-size: 0.85rem; color: var(--text-secondary);">Quantify screen spec preferences (resolution, color gamut, refresh rate)</span></div>
+                </div>
+                <div class="signal-item">
+                    <div class="signal-icon">📈</div>
+                    <div class="signal-text">追踪购买转化数据<br><span style="font-size: 0.85rem; color: var(--text-secondary);">Track purchase conversion data</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h3 class="section-title">📝 代表性评论 / Representative Comments</h3>
+            <div class="comments-grid">
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="comment-platform">Xiaohongshu</span>
+                        <span class="comment-sentiment sentiment-positive">正面 / Positive</span>
+                    </div>
+                    <p class="comment-text">"Retina display quality for photo/video editing work"</p>
+                    <p style="margin-top: 8px; font-size: 0.85rem; color: var(--accent-primary);">→ 直接关联创意工作流 / Direct creative workflow link</p>
+                </div>
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="comment-platform">Web</span>
+                        <span class="comment-sentiment sentiment-positive">正面 / Positive</span>
+                    </div>
+                    <p class="comment-text">"High refresh rate 120Hz vs 60Hz difference appreciation"</p>
+                    <p style="margin-top: 8px; font-size: 0.85rem; color: var(--accent-primary);">→ 技术规格理解 / Technical spec literacy</p>
+                </div>
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="comment-platform">Weibo</span>
+                        <span class="comment-sentiment sentiment-positive">正面 / Positive</span>
+                    </div>
+                    <p class="comment-text">"Foldable iPhone screen excitement and rumors"</p>
+                    <p style="margin-top: 8px; font-size: 0.85rem; color: var(--accent-primary);">→ 创新技术关注 / Innovation interest</p>
+                </div>
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <span class="comment-platform">Bilibili</span>
+                        <span class="comment-sentiment sentiment-positive">正面 / Positive</span>
+                    </div>
+                    <p class="comment-text">"Color accuracy display for professional creative work"</p>
+                    <p style="margin-top: 8px; font-size: 0.85rem; color: var(--accent-primary);">→ 专业用途明确 / Explicit professional use</p>
+                </div>
+            </div>
+        </div>
+        <footer class="footer">
+            <span class="badge">Multi-agent Framework</span>
+            <p>Retriever → Analyst → Reporter</p>
+            <p style="margin-top: 12px;">数据来源 / Data Source: data/comments.csv | 证据数 / Evidence: 113 条</p>
+            <p style="margin-top: 8px; font-size: 0.85rem;">时间范围 / Time Window: 近 90 天 / Last 90 days</p>
+        </footer>
+    </div>
+</body>
+</html>
