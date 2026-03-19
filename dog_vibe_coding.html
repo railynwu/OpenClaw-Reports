@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Dog Wrote Code</title>
+
+    <!-- Fonts: Outfit from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (SPLIT PASTEL THEME)
+           =========================================== */
+        :root {
+            --bg-peach: #f5e6dc;
+            --bg-lavender: #e4dff0;
+            --bg-dark: #434048;
+            --text-dark: #1a1a1a;
+            --text-muted: #6b6580;
+            --badge-mint: #c8f0d8;
+            --badge-yellow: #f0f0c8;
+            --badge-pink: #f0d4e0;
+            --badge-blue: #c8ddf0;
+            --badge-purple: #d8c8f0;
+            --accent-coral: #e8836b;
+            --accent-teal: #6bc4b8;
+
+            --font-display: 'Outfit', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+            --title-size: clamp(2rem, 5.5vw, 4.5rem);
+            --h2-size: clamp(1.5rem, 4vw, 3rem);
+            --subtitle-size: clamp(1rem, 2vw, 1.5rem);
+            --body-size: clamp(0.8rem, 1.4vw, 1.15rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+            --mono-size: clamp(1.2rem, 3.5vw, 2.8rem);
+
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(1rem, 2vw, 2rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE RESET
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ===========================================
+           VIEWPORT FITTING: MANDATORY BASE STYLES
+           =========================================== */
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            font-family: var(--font-display);
+        }
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+        :root {
+            --title-size: clamp(1.5rem, 5vw, 4rem);
+            --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+            --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+            --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+            --slide-padding: clamp(1rem, 4vw, 4rem);
+            --content-gap: clamp(0.5rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+        }
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+        .feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+        .feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+        img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1rem, 3vw, 1.75rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+            .nav-dots, .keyboard-hint, .decorative { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+        @media (max-width: 600px) {
+            :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+            .grid { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ===========================================
+           OVERRIDE CUSTOM PROPERTIES FOR THIS THEME
+           =========================================== */
+        :root {
+            --title-size: clamp(2rem, 5.5vw, 4.5rem);
+            --h2-size: clamp(1.5rem, 4vw, 3rem);
+            --body-size: clamp(0.8rem, 1.4vw, 1.15rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(1rem, 2vw, 2rem);
+        }
+
+        /* ===========================================
+           ANIMATIONS — PLAYFUL BOUNCY STYLE
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-bounce);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.5s var(--ease-out-expo),
+                        transform 0.5s var(--ease-bounce);
+        }
+        .slide.visible .reveal-scale {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-coral), var(--accent-teal));
+            z-index: 1000;
+            transition: width 0.3s ease;
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: clamp(12px, 2vw, 24px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(106, 101, 128, 0.3);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-bounce);
+            border: none;
+            padding: 0;
+        }
+        .nav-dot.active {
+            background: var(--accent-coral);
+            transform: scale(1.4);
+        }
+        .nav-dot:hover {
+            background: var(--accent-teal);
+            transform: scale(1.3);
+        }
+
+        /* ===========================================
+           SLIDE 1: HOOK — DARK MYSTERY
+           =========================================== */
+        .slide-hook {
+            background: var(--bg-dark);
+            align-items: center;
+            justify-content: center;
+        }
+        .slide-hook .slide-content {
+            align-items: center;
+            text-align: center;
+            gap: clamp(1.5rem, 3vh, 3rem);
+        }
+        .hook-code {
+            font-family: var(--font-mono);
+            font-size: clamp(1.5rem, 4.5vw, 3.5rem);
+            font-weight: 700;
+            color: var(--accent-coral);
+            letter-spacing: 0.05em;
+            padding: clamp(0.8rem, 2vw, 1.5rem) clamp(1.5rem, 3vw, 3rem);
+            background: rgba(232, 131, 107, 0.08);
+            border: 2px solid rgba(232, 131, 107, 0.2);
+            border-radius: 16px;
+            position: relative;
+        }
+        .hook-code::before {
+            content: '>';
+            position: absolute;
+            left: clamp(0.5rem, 1vw, 1rem);
+            color: rgba(232, 131, 107, 0.4);
+            animation: pulse-soft 2s ease-in-out infinite;
+        }
+        .hook-question {
+            font-family: var(--font-display);
+            font-size: clamp(1.1rem, 2.5vw, 1.8rem);
+            font-weight: 400;
+            color: rgba(228, 223, 240, 0.5);
+            letter-spacing: 0.02em;
+        }
+
+        /* decorative blobs */
+        .slide-hook .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .slide-hook .blob-1 {
+            width: 300px; height: 300px;
+            background: var(--accent-coral);
+            top: -80px; right: -60px;
+        }
+        .slide-hook .blob-2 {
+            width: 250px; height: 250px;
+            background: var(--accent-teal);
+            bottom: -60px; left: -40px;
+        }
+
+        /* ===========================================
+           SLIDE 1.5: REVEAL — IMAGE + ANSWER
+           =========================================== */
+        .slide-reveal {
+            background: var(--bg-peach);
+            position: relative;
+        }
+        .slide-reveal .slide-content {
+            flex-direction: row;
+            align-items: center;
+            gap: clamp(2rem, 5vw, 5rem);
+        }
+        .reveal-image-wrap {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .reveal-image {
+            width: 100%;
+            max-width: 550px;
+            max-height: min(65vh, 480px);
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+        .reveal-text-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.8rem, 2vh, 1.5rem);
+        }
+        .reveal-answer {
+            font-family: var(--font-mono);
+            font-size: clamp(0.8rem, 1.3vw, 1.1rem);
+            color: var(--text-muted);
+            background: rgba(42, 36, 56, 0.06);
+            padding: clamp(0.5rem, 1vw, 0.8rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            border-radius: 10px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+        .reveal-headline {
+            font-size: clamp(1.8rem, 4.5vw, 3.5rem);
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.1;
+        }
+        .reveal-sub {
+            font-size: clamp(0.9rem, 1.6vw, 1.25rem);
+            font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        @media (max-width: 768px) {
+            .slide-reveal .slide-content {
+                flex-direction: column;
+            }
+            .reveal-image {
+                max-height: min(35vh, 280px);
+            }
+        }
+
+        /* ===========================================
+           SLIDE 2: STORY — SPLIT PASTEL LAYOUT
+           =========================================== */
+        .slide-story {
+            flex-direction: row;
+        }
+        .split-left {
+            flex: 1;
+            background: var(--bg-peach);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: var(--slide-padding);
+            position: relative;
+            overflow: hidden;
+        }
+        .split-right {
+            flex: 1;
+            background: var(--bg-lavender);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: var(--slide-padding);
+            position: relative;
+            overflow: hidden;
+        }
+        .split-right::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(26, 26, 26, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(26, 26, 26, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .story-title {
+            font-size: var(--title-size);
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.1;
+            margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem);
+        }
+        .story-image {
+            width: 100%;
+            max-height: min(38vh, 320px);
+            object-fit: cover;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        .story-video-wrap {
+            width: 100%;
+            position: relative;
+            aspect-ratio: 16 / 9;
+            max-height: min(38vh, 320px);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        .story-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .story-caption {
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            margin-top: auto;
+            padding-top: clamp(0.5rem, 1vh, 1rem);
+        }
+
+        /* flow boxes */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(0.5rem, 1.5vh, 1.2rem);
+            width: 100%;
+            max-width: 320px;
+        }
+        .flow-box {
+            width: 100%;
+            padding: clamp(0.8rem, 1.8vh, 1.5rem) clamp(1rem, 2vw, 1.5rem);
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 600;
+            font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+            color: var(--text-dark);
+            line-height: 1.3;
+            position: relative;
+        }
+        .flow-box.mint { background: var(--badge-mint); }
+        .flow-box.pink { background: var(--badge-pink); }
+        .flow-box.yellow { background: var(--badge-yellow); }
+        .flow-box.blue { background: var(--badge-blue); }
+        .flow-arrow {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: var(--text-muted);
+            line-height: 1;
+        }
+
+        /* ===========================================
+           SLIDE 4: VIBE CODING — HERO + STATS
+           =========================================== */
+        .slide-vibe {
+            background: var(--bg-lavender);
+            position: relative;
+        }
+        .slide-vibe::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(26, 26, 26, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(26, 26, 26, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+        .slide-vibe .slide-content {
+            align-items: center;
+            text-align: center;
+            gap: clamp(0.8rem, 2vh, 1.5rem);
+        }
+        .vibe-label {
+            font-size: var(--small-size);
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .vibe-title {
+            font-size: clamp(1.3rem, 3vw, 2.2rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.15;
+        }
+        .vibe-hero {
+            font-size: clamp(2.2rem, 6vw, 5rem);
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+        .vibe-stats {
+            display: flex;
+            gap: clamp(1rem, 2.5vw, 2rem);
+            justify-content: center;
+            align-items: stretch;
+            width: 100%;
+            max-width: 950px;
+            margin-top: clamp(0.5rem, 1.5vh, 1rem);
+        }
+        .vibe-stat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(0.4rem, 0.8vh, 0.6rem);
+            padding: clamp(1rem, 2vh, 1.5rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            border-radius: 18px;
+            text-align: center;
+        }
+        .vibe-stat-logo {
+            height: clamp(40px, 7vh, 64px);
+            width: clamp(80px, 14vw, 160px);
+            object-fit: contain;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        .vibe-stat-number {
+            font-size: clamp(1.4rem, 3vw, 2.2rem);
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.1;
+            min-height: clamp(1.6rem, 3.5vw, 2.6rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .vibe-stat-number.text-fit {
+            font-size: clamp(1rem, 2.2vw, 1.6rem);
+            font-weight: 700;
+        }
+        .vibe-stat-desc {
+            font-size: clamp(0.6rem, 1vw, 0.8rem);
+            font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+        @media (max-width: 600px) {
+            .vibe-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+            .vibe-stat {
+                flex-direction: row;
+                gap: clamp(0.6rem, 2vw, 1rem);
+                text-align: left;
+                max-width: 300px;
+            }
+        }
+
+        /* ===========================================
+           SLIDE 4: INSIGHT — DARK WITH QUOTES
+           =========================================== */
+        .slide-insight {
+            background: var(--bg-dark);
+        }
+        .slide-insight .slide-content {
+            align-items: center;
+            text-align: center;
+            gap: clamp(1.5rem, 3vh, 3rem);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .insight-title {
+            font-size: var(--h2-size);
+            font-weight: 700;
+            color: #f5e6dc;
+            line-height: 1.2;
+        }
+        .insight-quote {
+            font-size: clamp(1rem, 2.2vw, 1.6rem);
+            font-weight: 300;
+            line-height: 1.5;
+            color: rgba(228, 223, 240, 0.85);
+            position: relative;
+            padding: 0 clamp(0.5rem, 2vw, 2rem);
+        }
+        .insight-quote.coral { color: var(--accent-coral); font-weight: 500; }
+        .insight-quote.highlight {
+            font-size: clamp(1.4rem, 2.8vw, 2.3rem);
+            font-weight: 600;
+            color: rgba(228, 223, 240, 0.95);
+            white-space: nowrap;
+        }
+        .insight-highlight {
+            background: linear-gradient(90deg, var(--accent-coral), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        .insight-divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-coral), var(--accent-teal));
+            border-radius: 2px;
+        }
+        .insight-closing {
+            font-size: clamp(0.8rem, 1.4vw, 1.05rem);
+            color: rgba(228, 223, 240, 0.35);
+            font-weight: 400;
+            line-height: 1.5;
+            max-width: 600px;
+        }
+
+        /* decorative blobs for insight slide */
+        .slide-insight .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        .slide-insight .blob-1 {
+            width: 350px; height: 350px;
+            background: var(--bg-peach);
+            top: -100px; left: -80px;
+        }
+        .slide-insight .blob-2 {
+            width: 280px; height: 280px;
+            background: var(--accent-teal);
+            bottom: -80px; right: -60px;
+        }
+
+        /* ===========================================
+           KEYBOARD HINT
+           =========================================== */
+        .keyboard-hint {
+            position: fixed;
+            bottom: clamp(12px, 2vh, 24px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-display);
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            color: rgba(107, 101, 128, 0.4);
+            z-index: 999;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .keyboard-hint.hidden { opacity: 0; }
+
+        /* ===========================================
+           RESPONSIVE: STACK SPLIT ON NARROW SCREENS
+           =========================================== */
+        @media (max-width: 768px) {
+            .slide-story {
+                flex-direction: column;
+            }
+            .split-left, .split-right {
+                flex: 1;
+                min-height: 50%;
+            }
+            .flow-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                max-width: none;
+            }
+            .flow-box {
+                width: auto;
+                flex: 0 1 auto;
+                padding: clamp(0.4rem, 1vh, 0.8rem) clamp(0.6rem, 1.5vw, 1rem);
+                font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+            }
+            .flow-arrow {
+                transform: rotate(0deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+
+    <!-- Keyboard hint -->
+    <div class="keyboard-hint" id="keyboardHint">Use arrow keys or scroll to navigate</div>
+
+    <!-- ===========================================
+         SLIDE 1: HOOK
+         =========================================== -->
+    <section class="slide slide-hook" aria-label="Hook">
+        <div class="blob blob-1 decorative"></div>
+        <div class="blob blob-2 decorative"></div>
+        <div class="slide-content">
+            <div class="hook-code reveal-scale">wsaqq4e3wd232'21sazqa</div>
+            <div class="hook-question reveal">What does this mean?</div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 2: REVEAL — THE ANSWER
+         =========================================== -->
+    <section class="slide slide-reveal" aria-label="Reveal">
+        <div class="slide-content">
+            <div class="reveal-image-wrap">
+                <img src="dog_vibe_coding-assets/momo-keyboard.png"
+                     alt="Momo the cavapoo sitting on a Bluetooth keyboard"
+                     class="reveal-image reveal-scale">
+            </div>
+            <div class="reveal-text-wrap">
+                <div class="reveal-answer reveal" style="transition-delay: 0.15s;">wsaqq4e3wd232'21sazqa</div>
+                <div class="reveal-headline reveal" style="transition-delay: 0.3s;">This was typed<br>by a dog.</div>
+                <div class="reveal-sub reveal" style="transition-delay: 0.45s;">
+                    Meet Momo, a 9-pound cavapoo.<br>
+                    She stepped on a keyboard.<br>
+                    AI turned it into a video game.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 3: A DOG MADE A PLAYABLE GAME
+         =========================================== -->
+    <section class="slide slide-story" aria-label="Story">
+        <div class="split-left">
+            <h1 class="story-title reveal">A Dog Made<br>a Playable<br>Game</h1>
+            <div class="story-video-wrap reveal" style="transition-delay: 0.2s;">
+                <iframe class="story-video"
+                    src="https://www.youtube.com/embed/8BbPlPou3Bg"
+                    title="Watch Momo vibe code a game"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+            </div>
+            <div class="story-caption reveal" style="transition-delay: 0.3s;">Caleb Leak &nbsp;&bull;&nbsp; ex-Meta Research Engineer &nbsp;&bull;&nbsp; Jan 2026</div>
+        </div>
+        <div class="split-right">
+            <div class="flow-container">
+                <div class="flow-box mint reveal" style="transition-delay: 0.15s;">🐾 Momo<br><span style="font-weight:400; font-size: 0.85em;">9lb Cavapoo</span></div>
+                <div class="flow-arrow reveal" style="transition-delay: 0.25s;">↓</div>
+                <div class="flow-box pink reveal" style="transition-delay: 0.35s;">⌨️ Bluetooth Keyboard</div>
+                <div class="flow-arrow reveal" style="transition-delay: 0.45s;">↓</div>
+                <div class="flow-box yellow reveal" style="transition-delay: 0.55s;">🤖 Claude AI<br><span style="font-weight:400; font-size: 0.85em;">"Genius game design ideas"</span></div>
+                <div class="flow-arrow reveal" style="transition-delay: 0.65s;">↓</div>
+                <div class="flow-box blue reveal" style="transition-delay: 0.75s;">🎮 Playable Games<br><span style="font-weight:400; font-size: 0.85em;">in 1–2 hours</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 3: VIBE CODING
+         =========================================== -->
+    <section class="slide slide-vibe" aria-label="Vibe Coding">
+        <div class="slide-content">
+            <div class="vibe-label reveal">Andrej Karpathy, 2025</div>
+            <h2 class="vibe-title reveal" style="transition-delay: 0.1s;">This Is Vibe Coding.</h2>
+            <div class="vibe-hero reveal" style="transition-delay: 0.2s;">You describe.<br>AI builds.</div>
+
+            <div class="vibe-stats">
+                <div class="vibe-stat reveal" style="background: var(--badge-mint); transition-delay: 0.35s;">
+                    <img src="dog_vibe_coding-assets/lovable-icon.png" alt="Lovable" class="vibe-stat-logo">
+                    <div class="vibe-stat-number">$6.6B</div>
+                    <div class="vibe-stat-desc">Lovable valuation<br>$300M ARR</div>
+                </div>
+                <div class="vibe-stat reveal" style="background: var(--badge-pink); transition-delay: 0.45s;">
+                    <img src="dog_vibe_coding-assets/collins-woty-vibecoding.png" alt="Collins Dictionary" class="vibe-stat-logo">
+                    <div class="vibe-stat-number text-fit">Word of the Year</div>
+                    <div class="vibe-stat-desc">Collins Dictionary<br>2025</div>
+                </div>
+                <div class="vibe-stat reveal" style="background: var(--badge-yellow); transition-delay: 0.55s;">
+                    <img src="dog_vibe_coding-assets/cal-ai-screenshot.png" alt="Cal AI" class="vibe-stat-logo">
+                    <div class="vibe-stat-number">$1M / month</div>
+                    <div class="vibe-stat-desc">Built by an 18-year-old<br>5M+ downloads</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 4: INSIGHT
+         =========================================== -->
+    <section class="slide slide-insight" aria-label="Insight">
+        <div class="blob blob-1 decorative"></div>
+        <div class="blob blob-2 decorative"></div>
+        <div class="slide-content">
+            <h2 class="insight-title reveal">When Everyone Can Build<br>80% of Everything</h2>
+
+            <div class="insight-quote coral reveal" style="transition-delay: 0.2s;">
+                "The bottleneck used to be 'can you build it?'<br>
+                Now it's 'do you know what you want?'"
+            </div>
+
+            <div class="insight-divider reveal" style="transition-delay: 0.35s;"></div>
+
+            <div class="insight-quote highlight reveal" style="transition-delay: 0.45s;">
+                "When execution is no longer scarce,<br>
+                <span class="insight-highlight">taste and judgment</span><br>
+                become the real edge."
+            </div>
+
+            <div class="insight-closing reveal" style="transition-delay: 0.6s;">
+                So if your dog can code, you'd better make sure<br>
+                you're at least better at product than your dog.
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE PRESENTATION CONTROLLER
+         =========================================== -->
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.isScrolling = false;
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+                this.hideHintAfterFirstNav();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = Array.from(this.slides).indexOf(entry.target);
+                            if (idx !== -1) {
+                                this.currentSlide = idx;
+                                this.updateProgressBar();
+                                this.updateNavDots();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide + 1);
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide - 1);
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.slides.length - 1);
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => {
+                    startY = e.touches[0].clientY;
+                }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        this.goToSlide(this.currentSlide + (diff > 0 ? 1 : -1));
+                    }
+                }, { passive: true });
+            }
+
+            setupWheelNav() {
+                let lastWheel = 0;
+                document.addEventListener('wheel', (e) => {
+                    const now = Date.now();
+                    if (now - lastWheel < 800) return;
+                    lastWheel = now;
+                    if (e.deltaY > 30) {
+                        this.goToSlide(this.currentSlide + 1);
+                    } else if (e.deltaY < -30) {
+                        this.goToSlide(this.currentSlide - 1);
+                    }
+                }, { passive: true });
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                if (!this.progressBar) return;
+                const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = pct + '%';
+            }
+
+            setupNavDots() {
+                const nav = document.getElementById('navDots');
+                if (!nav) return;
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.classList.add('nav-dot');
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+                    if (i === 0) dot.classList.add('active');
+                    dot.addEventListener('click', () => this.goToSlide(i));
+                    nav.appendChild(dot);
+                });
+                this.dots = nav.querySelectorAll('.nav-dot');
+            }
+
+            updateNavDots() {
+                if (!this.dots) return;
+                this.dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            goToSlide(idx) {
+                if (idx < 0 || idx >= this.slides.length) return;
+                this.currentSlide = idx;
+                this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+                this.updateProgressBar();
+                this.updateNavDots();
+            }
+
+            hideHintAfterFirstNav() {
+                const hint = document.getElementById('keyboardHint');
+                if (!hint) return;
+                const hide = () => {
+                    hint.classList.add('hidden');
+                    document.removeEventListener('keydown', hide);
+                    document.removeEventListener('wheel', hide);
+                    document.removeEventListener('touchstart', hide);
+                };
+                document.addEventListener('keydown', hide);
+                document.addEventListener('wheel', hide, { passive: true });
+                document.addEventListener('touchstart', hide, { passive: true });
+            }
+        }
+
+        new SlidePresentation();
+    </script>
+</body>
+</html>
